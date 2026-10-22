@@ -24,7 +24,7 @@
             <a href="/admin/password" aria-current="@Cur("password")">Password</a>
             <a href="/admin/credits" aria-current="@Cur("credits")">Credits</a>
         </nav>
-        <form method="post" action="/admin/logout">
+        <form method="post" action="/admin/logout" asp-antiforgery="true">
             <button type="submit" class="link-btn">Sign out</button>
         </form>
     </div>

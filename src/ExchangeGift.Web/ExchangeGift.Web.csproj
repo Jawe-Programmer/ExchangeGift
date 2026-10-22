@@ -17,4 +17,12 @@
     </PackageReference>
   </ItemGroup>
 
+  <!-- web.config is NOT deployed by default, so settings edited on the host (e.g. Admin__Password,
+       Storage__Directory) survive later publishes. For the very first publish (or to push a new web.config on
+       purpose) set the property: dotnet publish -p:DeployWebConfig=true
+       (in Visual Studio: Publish > Show all settings, or add <DeployWebConfig>true</DeployWebConfig> temporarily). -->
+  <PropertyGroup Condition="'$(DeployWebConfig)' != 'true'">
+    <ExcludeFilesFromDeployment>$(ExcludeFilesFromDeployment);web.config</ExcludeFilesFromDeployment>
+  </PropertyGroup>
+
 </Project>
