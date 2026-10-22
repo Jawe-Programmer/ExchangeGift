@@ -1,0 +1,45 @@
+@model IReadOnlyList<GroupRow>
+@inject TimeProvider Clock
+@{
+    var now = Clock.GetUtcNow().UtcDateTime;
+}
+@if (Model.Count == 0)
+{
+    <div class="card">
+        <p class="muted">No exchange-gift groups yet.</p>
+        <a class="btn btn-primary" href="/admin/groups/create">Create your first group</a>
+    </div>
+}
+else
+{
+    <div class="group-list">
+        @foreach (var g in Model)
+        {
+            var key = g.StatusKey(now);
+            <article class="group-item">
+                <div>
+                    <h3><a href="/admin/groups/@g.Id">@g.Title</a></h3>
+                    <p class="small muted" style="margin:2px 0 8px">/@g.Slug</p>
+                    <span class="chip chip-@key">@GroupRow.StatusLabel(key)</span>
+                </div>
+                <dl class="kv">
+                    <dt>Theme</dt><dd>@g.ThemeName</dd>
+                    <dt>Participants</dt><dd>@g.Participants</dd>
+                    <dt>Revealed</dt>
+                    <dd>
+                        @if (g.HasDraw)
+                        {
+                            <span>@g.Revealed of @g.Participants</span>
+                            <div class="progress" role="progressbar" aria-label="Reveal progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="@g.Percent"><span style="width:@(g.Percent)%"></span></div>
+                        }
+                        else { <span class="muted">Waiting for the draw</span> }
+                    </dd>
+                    <dt>Created</dt><dd><time datetime="@g.CreatedAtUtc.Iso()" data-local="date">@g.CreatedAtUtc.Plain()</time></dd>
+                </dl>
+                <div class="group-actions">
+                    <a class="btn btn-dark btn-sm" href="/admin/groups/@g.Id">Manage</a>
+                </div>
+            </article>
+        }
+    </div>
+}

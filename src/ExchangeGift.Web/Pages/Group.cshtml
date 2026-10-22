@@ -1,0 +1,18 @@
+@page "/{groupSlug}"
+@model GroupModel
+@{
+    ViewData["Title"] = Model.GroupTitle;
+}
+<span class="mark" aria-hidden="true"></span>
+<h1>@Model.GroupTitle</h1>
+<p>Enter the six-character code from your private link, or just open the link you were sent.</p>
+<form method="post">
+    <label for="code">Your code</label>
+    <input id="code" name="code" type="text" inputmode="text" autocomplete="off" autocapitalize="characters" spellcheck="false"
+           maxlength="6" minlength="6" required aria-describedby="@(Model.Error is null ? null : "code-error")">
+    @if (Model.Error is not null)
+    {
+        <p class="error" id="code-error" role="alert">@Model.Error</p>
+    }
+    <button type="submit">Open my gift</button>
+</form>

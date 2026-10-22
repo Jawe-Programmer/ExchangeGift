@@ -1,0 +1,74 @@
+@page "/admin/groups/create"
+@model Admin.Groups.CreateModel
+@{
+    ViewData["Title"] = "New group";
+    ViewData["Nav"] = "create";
+}
+<div class="page-head">
+    <div>
+        <div class="crumbs"><a href="/admin/groups">Groups</a> / New</div>
+        <h1>Create exchange gift group</h1>
+    </div>
+</div>
+
+@if (Model.Error is not null)
+{
+    <div class="flash flash-err" role="alert">@Model.Error</div>
+}
+
+<form method="post" class="stack" data-once>
+    <section class="card" aria-labelledby="g-details">
+        <h2 id="g-details">1. Group details</h2>
+        <div class="field">
+            <label for="title">Title</label>
+            <input class="input" id="title" name="Title" value="@Model.Title" placeholder="Family Christmas 2026" maxlength="120" required data-slug-source autocomplete="off">
+        </div>
+        <div class="field">
+            <label for="slug">URL slug</label>
+            <input class="input" id="slug" name="Slug" value="@Model.Slug" placeholder="family-christmas-2026" maxlength="60" pattern="[a-z0-9]+(-[a-z0-9]+)*" data-slug-target autocomplete="off" spellcheck="false">
+            <span class="hint">The group page will be <strong>/<span data-slug-preview>@(string.IsNullOrEmpty(Model.Slug) ? "your-group" : Model.Slug)</span></strong>. Lowercase letters, numbers and hyphens. It is generated from the title, and you can edit it.</span>
+        </div>
+        <div class="field" style="max-width:260px">
+            <label for="expires">Links stop working after (optional)</label>
+            <input class="input" id="expires" type="date" name="ExpiresOn" value="@Model.ExpiresOn">
+        </div>
+    </section>
+
+    <section class="card" aria-labelledby="g-theme">
+        <h2 id="g-theme">2. Choose a theme</h2>
+        <p class="muted small">Everyone in this group sees this design. You can switch it later without changing who draws whom.</p>
+        <div class="themes" role="radiogroup" aria-labelledby="g-theme">
+            @foreach (var t in ThemeCatalog.All)
+            {
+                <label class="theme-opt">
+                    <input type="radio" name="ThemeKey" value="@t.Key" checked="@(Model.ThemeKey == t.Key)">
+                    <span class="theme-card">
+                        <img src="@t.PreviewImage" alt="Preview of the @t.DisplayName theme" width="640" height="400" loading="lazy">
+                        <span class="body">
+                            <strong>@t.DisplayName</strong>
+                            <span class="muted small">@t.Description</span>
+                            <a class="small" href="/admin/themes/@t.Key/preview" target="_blank" rel="noopener">Open full preview</a>
+                        </span>
+                    </span>
+                    <span class="tick" aria-hidden="true">Selected</span>
+                </label>
+            }
+        </div>
+    </section>
+
+    <section class="card" aria-labelledby="g-people">
+        <div class="card-head">
+            <h2 id="g-people">3. Participants</h2>
+            <span class="chip" id="count-out" aria-live="polite">0 participants</span>
+        </div>
+        <div class="field">
+            <label for="people">Names, one per line</label>
+            <textarea class="textarea" id="people" name="ParticipantsText" rows="8" placeholder="Alex&#10;Sam Taylor&#10;Jordan" data-count-lines="count-out">@Model.ParticipantsText</textarea>
+            <span class="hint">Paste a whole list, or add people one at a time later. Blank lines are ignored and duplicate names are rejected. You can edit or remove people until you generate the draw.</span>
+        </div>
+        <div class="row">
+            <button class="btn btn-primary" type="submit">Create group</button>
+            <a class="btn" href="/admin/groups">Cancel</a>
+        </div>
+    </section>
+</form>

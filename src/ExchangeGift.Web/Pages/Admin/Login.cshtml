@@ -1,0 +1,42 @@
+@page "/admin/login"
+@model LoginModel
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="theme-color" content="#0b1530">
+    <title>Sign in · Exchange Gift</title>
+    <link rel="icon" href="~/img/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true">
+</head>
+<body class="admin">
+<div class="login-wrap">
+    <main class="login-card" id="main">
+        <div class="brand" style="margin-bottom:6px"><i aria-hidden="true"></i> Exchange Gift</div>
+        <h1>Administrator sign in</h1>
+        @if (Model.Error is not null)
+        {
+            <div class="flash flash-err" role="alert">@Model.Error</div>
+        }
+        <form method="post" data-once>
+            <input type="hidden" name="returnUrl" value="@Model.ReturnUrl">
+            <div class="field">
+                <label for="username">Username</label>
+                <input class="input" id="username" name="username" value="@Model.Username" autocomplete="username" autocapitalize="none" spellcheck="false" required maxlength="64">
+            </div>
+            <div class="field">
+                <label for="password">Password</label>
+                <input class="input" id="password" name="password" type="password" autocomplete="current-password" required maxlength="128">
+            </div>
+            <button class="btn btn-primary" type="submit" style="width:100%">Sign in</button>
+        </form>
+    </main>
+</div>
+<script src="~/js/admin.js" asp-append-version="true"></script>
+</body>
+</html>

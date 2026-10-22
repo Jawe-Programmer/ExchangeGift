@@ -1,0 +1,31 @@
+@page "/{groupSlug}/{participantCode}"
+@model ParticipantModel
+@{
+    if (Model.Theme is { } theme)
+    {
+        Layout = "_ThemeLayout";
+        ViewData["Theme"] = theme;
+        ViewData["Title"] = theme.GroupTitle;
+    }
+    else
+    {
+        ViewData["Title"] = Model.GroupTitle;
+    }
+}
+@if (Model.Theme is { } t)
+{
+    <partial name="@t.Info.PartialView" model="t" />
+}
+else
+{
+    <span class="mark" aria-hidden="true"></span>
+    <h1>@Model.GroupTitle</h1>
+    @if (Model.State == ParticipantLinkState.Closed)
+    {
+        <p>This gift exchange has finished, so personal links no longer open.</p>
+    }
+    else
+    {
+        <p>The draw hasn't happened yet. Please come back to this link once the organiser says it is ready.</p>
+    }
+}

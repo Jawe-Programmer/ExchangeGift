@@ -1,0 +1,41 @@
+# Builds, tests and deploys Exchange Gift to an Azure App Service (Windows) web app.
+# Setup (see docs/DEPLOYMENT.md, section C):
+#   1. Create the web app and set its app settings (Admin__Password, Storage__Directory).
+#   2. Add the repository secret AZURE_WEBAPP_PUBLISH_PROFILE (contents of the downloaded publish profile).
+#   3. Replace your-azure-app-name below (or define a repository variable AZURE_WEBAPP_NAME).
+name: Deploy to Azure App Service
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+env:
+  AZURE_WEBAPP_NAME: ${{ vars.AZURE_WEBAPP_NAME || 'your-azure-app-name' }}
+  DOTNET_VERSION: '10.0.x'
+
+jobs:
+  build-and-deploy:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Test
+        run: dotnet test --configuration Release --no-restore
+
+      - name: Publish
+        run: dotnet publish src/ExchangeGift.Web -c Release --no-restore -o ${{ github.workspace }}/publish
+
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          package: ${{ github.workspace }}/publish

@@ -1,0 +1,40 @@
+@page "/"
+@model IndexModel
+@{
+    ViewData["Title"] = "Exchange Gift";
+    ViewData["Body"] = "landing";
+}
+<div class="snow" aria-hidden="true"></div>
+<div class="landing-in">
+    <svg class="gift" viewBox="0 0 64 64" aria-hidden="true" width="72" height="72">
+        <rect x="8" y="26" width="48" height="32" fill="#ec3013"/>
+        <rect x="5" y="20" width="54" height="10" fill="#d92b10"/>
+        <rect x="28" y="20" width="8" height="38" fill="#ffd54a"/>
+        <path d="M32 20C22 6 10 12 18 20zM32 20C42 6 54 12 46 20z" fill="#ffd54a"/>
+    </svg>
+    <p class="eyebrow">Secret gift exchange</p>
+    <h1>Exchange Gift</h1>
+    <p class="lead">Find out who you're giving a gift to. Open the private link you were sent, or enter your details below.</p>
+
+    <form method="post" class="find">
+        <div>
+            <label for="group">Group name in the link</label>
+            <input id="group" name="group" type="text" autocomplete="off" autocapitalize="none" spellcheck="false" maxlength="60" placeholder="your-group-name" required>
+        </div>
+        <div>
+            <label for="code">Your 6-character code</label>
+            <input id="code" name="code" class="code" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="6" minlength="6" placeholder="ABC123" required>
+        </div>
+        @if (Model.Error is not null)
+        {
+            <p class="error" role="alert">@Model.Error</p>
+        }
+        <button type="submit">Open my gift</button>
+    </form>
+
+    <ol class="steps">
+        <li><b>1</b><span>Get your private link from the organiser</span></li>
+        <li><b>2</b><span>Open it and unwrap your reveal</span></li>
+        <li><b>3</b><span>Keep it secret and pick a great gift</span></li>
+    </ol>
+</div>

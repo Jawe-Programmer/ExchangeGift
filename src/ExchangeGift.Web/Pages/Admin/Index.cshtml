@@ -1,0 +1,33 @@
+@page "/admin"
+@model Admin.IndexModel
+@{
+    ViewData["Title"] = "Dashboard";
+    ViewData["Nav"] = "dashboard";
+}
+<div class="page-head">
+    <h1>Dashboard</h1>
+    <a class="btn btn-primary" href="/admin/groups/create">Create exchange gift group</a>
+</div>
+
+<section class="stats" aria-label="Totals">
+    <div class="stat"><b>@Model.Stats.Groups</b><span>Exchange-gift groups</span></div>
+    <div class="stat"><b>@Model.Stats.Participants</b><span>Participants</span></div>
+    <div class="stat good"><b>@Model.Stats.Revealed</b><span>Have revealed</span></div>
+    <div class="stat warn"><b>@Model.Stats.NotRevealed</b><span>Not revealed yet</span></div>
+</section>
+
+<section class="card" aria-labelledby="share-h" style="margin-bottom:20px">
+    <div class="card-head"><h2 id="share-h">Sharing address</h2></div>
+    <p class="muted small">Participant links are built from this address. When you start a temporary tunnel, paste its https address here so every link you copy is ready to send.</p>
+    <form method="post" asp-page-handler="BaseUrl" class="inline-form">
+        <div class="field">
+            <label for="baseUrl">Public base URL</label>
+            <input class="input" id="baseUrl" name="baseUrl" value="@Model.SavedBaseUrl" placeholder="https://your-name.trycloudflare.com" inputmode="url" autocomplete="off" maxlength="200">
+            <span class="hint">Currently sharing links as <strong>@Model.EffectiveBaseUrl</strong></span>
+        </div>
+        <button class="btn btn-dark" type="submit">Save address</button>
+    </form>
+</section>
+
+<div class="page-head"><h2>Groups</h2><a href="/admin/groups">View all</a></div>
+<partial name="_GroupList" model="Model.Rows" />

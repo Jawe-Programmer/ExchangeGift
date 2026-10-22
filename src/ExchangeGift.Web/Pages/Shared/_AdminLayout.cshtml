@@ -1,0 +1,45 @@
+@{
+    var nav = ViewData["Nav"] as string ?? "";
+    string? Cur(string k) => nav == k ? "page" : null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="theme-color" content="#0b1530">
+    <title>@(ViewData["Title"] ?? "Admin") · Exchange Gift</title>
+    <link rel="icon" href="~/img/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true">
+</head>
+<body class="admin">
+<header class="topbar">
+    <div class="topbar-in">
+        <a class="brand" href="/admin"><i aria-hidden="true"></i> Exchange Gift</a>
+        <nav class="nav" aria-label="Administration">
+            <a href="/admin" aria-current="@Cur("dashboard")">Dashboard</a>
+            <a href="/admin/groups" aria-current="@Cur("groups")">Groups</a>
+            <a href="/admin/groups/create" aria-current="@Cur("create")">New group</a>
+            <a href="/admin/password" aria-current="@Cur("password")">Password</a>
+            <a href="/admin/credits" aria-current="@Cur("credits")">Credits</a>
+        </nav>
+        <form method="post" action="/admin/logout">
+            <button type="submit" class="link-btn">Sign out</button>
+        </form>
+    </div>
+</header>
+<main class="wrap" id="main">
+    @if (TempData["Flash"] is string ok)
+    {
+        <div class="flash flash-ok" role="status">@ok</div>
+    }
+    @if (TempData["FlashError"] is string err)
+    {
+        <div class="flash flash-err" role="alert">@err</div>
+    }
+    @RenderBody()
+</main>
+<script src="~/js/admin.js" asp-append-version="true"></script>
+</body>
+</html>

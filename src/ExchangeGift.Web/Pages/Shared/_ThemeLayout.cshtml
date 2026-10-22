@@ -1,0 +1,20 @@
+@{
+    var theme = (ThemeViewModel)ViewData["Theme"]!;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="theme-color" content="#070d24">
+    <title>@ViewData["Title"]</title>
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="~/themes/@theme.Info.Key/theme.css" asp-append-version="true">
+</head>
+<body>
+@RenderBody()
+<script src="~/themes/shared/theme-kit.js" asp-append-version="true"></script>
+<script src="~/themes/@theme.Info.Key/theme.js" asp-append-version="true"></script>
+</body>
+</html>

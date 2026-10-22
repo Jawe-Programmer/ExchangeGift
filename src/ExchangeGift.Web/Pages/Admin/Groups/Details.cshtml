@@ -1,0 +1,262 @@
+@page "/admin/groups/{id:int}"
+@model Admin.Groups.DetailsModel
+@{
+    var g = Model.Group;
+    ViewData["Title"] = g.Title;
+    ViewData["Nav"] = "groups";
+    var theme = ThemeCatalog.Find(g.ThemeKey);
+    var total = Model.People.Count;
+    var percent = total == 0 ? 0 : (int)Math.Round(100.0 * Model.RevealedCount / total);
+    var revealedAny = Model.RevealedCount > 0;
+    ViewData["GroupId"] = g.Id;
+}
+<div class="page-head">
+    <div>
+        <div class="crumbs"><a href="/admin/groups">Groups</a> / @g.Title</div>
+        <h1>@g.Title <span class="chip chip-@Model.StatusKey" style="vertical-align:middle">@GroupRow.StatusLabel(Model.StatusKey)</span></h1>
+    </div>
+</div>
+
+<div class="stack">
+
+    <section class="card" aria-labelledby="share-h">
+        <div class="card-head"><h2 id="share-h">Group page</h2></div>
+        <div class="linkbox">
+            <code>@Model.GroupUrl</code>
+            <button type="button" class="btn btn-sm" data-copy="@Model.GroupUrl"><span class="copy-label">Copy link</span></button>
+        </div>
+        <p class="hint" style="margin-top:8px">This public page shows only the group title and a code box. It never lists participants or results. Personal links are listed below once the draw exists.
+            Wrong address? Set the sharing address on the <a href="/admin">dashboard</a>.</p>
+    </section>
+
+    @if (Model.HasDraw)
+    {
+        <section class="card" aria-labelledby="prog-h">
+            <div class="card-head">
+                <h2 id="prog-h">Reveal progress</h2>
+                <strong>@Model.RevealedCount of @total revealed</strong>
+            </div>
+            <div class="progress" role="progressbar" aria-label="Reveal progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="@percent"><span style="width:@(percent)%"></span></div>
+            <p class="hint" style="margin-top:8px">Draw generated <time datetime="@g.DrawGeneratedAtUtc!.Value.Iso()" data-local>@g.DrawGeneratedAtUtc.Value.Plain()</time>.</p>
+        </section>
+    }
+
+    <section class="card" aria-labelledby="ppl-h">
+        <div class="card-head">
+            <h2 id="ppl-h">Participants <span class="muted">(@total)</span></h2>
+            @if (Model.HasDraw)
+            {
+                <button type="button" class="btn btn-sm" data-copy-all>Copy all links</button>
+            }
+        </div>
+
+        @if (Model.IsDraft)
+        {
+            <form method="post" asp-page-handler="Add" asp-route-id="@g.Id" class="inline-form" style="margin-bottom:12px">
+                <div class="field">
+                    <label for="add-name">Add a participant</label>
+                    <input class="input" id="add-name" name="name" maxlength="80" autocomplete="off" required>
+                </div>
+                <button class="btn btn-dark" type="submit">Add</button>
+            </form>
+            <details style="margin-bottom:16px">
+                <summary class="btn btn-sm" style="display:inline-flex">Paste several names</summary>
+                <form method="post" asp-page-handler="Bulk" asp-route-id="@g.Id" style="margin-top:12px">
+                    <div class="field">
+                        <label for="bulk">One name per line <span class="chip" id="bulk-count" aria-live="polite">0 participants</span></label>
+                        <textarea class="textarea" id="bulk" name="bulk" rows="6" data-count-lines="bulk-count"></textarea>
+                    </div>
+                    <button class="btn btn-dark" type="submit">Add names</button>
+                </form>
+            </details>
+
+            @if (total == 0)
+            {
+                <p class="muted">No participants yet.</p>
+            }
+            else
+            {
+                <ul class="people">
+                    @foreach (var p in Model.People)
+                    {
+                        <li class="person">
+                            <form method="post" asp-page-handler="Rename" asp-route-id="@g.Id" class="rename-form">
+                                <input type="hidden" name="participantId" value="@p.Id">
+                                <label class="visually-hidden" for="rn-@p.Id">Name</label>
+                                <input class="input" id="rn-@p.Id" name="name" value="@p.Name" maxlength="80" required>
+                                <button class="btn btn-sm" type="submit">Save name</button>
+                            </form>
+                            <form method="post" asp-page-handler="Remove" asp-route-id="@g.Id">
+                                <input type="hidden" name="participantId" value="@p.Id">
+                                <button class="btn btn-sm btn-danger" type="submit" aria-label="Remove @p.Name">Remove</button>
+                            </form>
+                            <partial name="_WishForm" model="p" view-data="ViewData" />
+                        </li>
+                    }
+                </ul>
+            }
+
+            <div class="row" style="margin-top:18px">
+                <button type="button" class="btn btn-primary" data-open-dialog="dlg-draw" disabled="@(total < 2)">Generate exchange gift draw</button>
+                @if (total < 2) { <span class="hint">Add at least two participants to generate the draw.</span> }
+            </div>
+        }
+        else
+        {
+            <ul class="people">
+                @foreach (var p in Model.People)
+                {
+                    <li class="person" data-link-name="@p.Name" data-link-url="@p.Link">
+                        <div class="person-top">
+                            <div class="person-name">@p.Name</div>
+                            @if (p.FirstRevealedAtUtc is { } first)
+                            {
+                                <div><span class="chip chip-yes">Revealed</span> <span class="small muted"><time datetime="@first.Iso()" data-local>@first.Plain()</time></span></div>
+                            }
+                            else
+                            {
+                                <div><span class="chip chip-no">Not revealed yet</span></div>
+                            }
+                        </div>
+                        <div class="person-grid">
+                            <div>
+                                <span class="label">Assigned recipient</span>
+                                <div class="recipient">
+                                    <output id="rc-@p.Id" class="masked" aria-live="polite">••••••••</output>
+                                    <button type="button" class="btn icon-btn" data-eye="rc-@p.Id" data-person="@p.Name"
+                                            data-url="/admin/groups/@g.Id?handler=Recipient&amp;participantId=@p.Id" aria-pressed="false">
+                                        <svg class="eye-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
+                                        <svg class="eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" hidden><path d="M17.9 17.9A10.9 10.9 0 0 1 12 19c-6.4 0-10-7-10-7a18.5 18.5 0 0 1 5.1-5.9M9.9 5.2A10.4 10.4 0 0 1 12 5c6.4 0 10 7 10 7a18.6 18.6 0 0 1-2.2 3.2M1 1l22 22"/><path d="M14.1 14.1a3 3 0 1 1-4.2-4.2"/></svg>
+                                    </button>
+                                </div>
+                            </div>
+                            <div>
+                                <span class="label">Personal link</span>
+                                <div class="linkbox">
+                                    <code>@p.Link</code>
+                                    <button type="button" class="btn btn-sm" data-copy="@p.Link" aria-label="Copy link for @p.Name"><span class="copy-label">Copy</span></button>
+                                </div>
+                            </div>
+                        </div>
+                        <partial name="_WishForm" model="p" view-data="ViewData" />
+                    </li>
+                }
+            </ul>
+        }
+    </section>
+
+    <section class="card" aria-labelledby="theme-h">
+        <div class="card-head"><h2 id="theme-h">Theme</h2></div>
+        <p class="muted small">Switching theme only changes how the reveal looks. It never regenerates or alters the draw.</p>
+        <form method="post" asp-page-handler="Theme" asp-route-id="@g.Id" data-once>
+            <div class="themes" role="radiogroup" aria-labelledby="theme-h">
+                @foreach (var t in ThemeCatalog.All)
+                {
+                    <label class="theme-opt">
+                        <input type="radio" name="themeKey" value="@t.Key" checked="@(g.ThemeKey == t.Key)">
+                        <span class="theme-card">
+                            <img src="@t.PreviewImage" alt="Preview of the @t.DisplayName theme" width="640" height="400" loading="lazy">
+                            <span class="body">
+                                <strong>@t.DisplayName</strong>
+                                <span class="muted small">@t.Description</span>
+                                <a class="small" href="/admin/themes/@t.Key/preview" target="_blank" rel="noopener">Open full preview</a>
+                            </span>
+                        </span>
+                        <span class="tick" aria-hidden="true">Selected</span>
+                    </label>
+                }
+            </div>
+            <div class="row" style="margin-top:14px"><button class="btn btn-dark" type="submit">Save theme</button></div>
+        </form>
+    </section>
+
+    <section class="card" aria-labelledby="set-h">
+        <div class="card-head"><h2 id="set-h">Group settings</h2></div>
+        <form method="post" asp-page-handler="Details" asp-route-id="@g.Id" data-once>
+            <div class="field">
+                <label for="s-title">Title</label>
+                <input class="input" id="s-title" name="title" value="@g.Title" maxlength="120" required>
+            </div>
+            <div class="field">
+                <label for="s-slug">URL slug</label>
+                <input class="input" id="s-slug" name="slug" value="@g.Slug" maxlength="60" readonly="@(!Model.IsDraft)" pattern="[a-z0-9]+(-[a-z0-9]+)*" autocomplete="off" spellcheck="false">
+                @if (!Model.IsDraft) { <span class="hint">Locked after the draw so links that were already shared keep working.</span> }
+            </div>
+            <div class="field" style="max-width:260px">
+                <label for="s-exp">Links stop working after (optional)</label>
+                <input class="input" id="s-exp" type="date" name="expiresOn" value="@Model.ExpiresOnValue">
+            </div>
+            <button class="btn btn-dark" type="submit">Save settings</button>
+        </form>
+    </section>
+
+    <section class="card" aria-labelledby="danger-h" style="border-color:#efc2ba">
+        <div class="card-head"><h2 id="danger-h">Manage</h2></div>
+        <div class="row">
+            @if (Model.HasDraw)
+            {
+                <button type="button" class="btn btn-danger" data-open-dialog="dlg-reset">Reset draw…</button>
+            }
+            @if (g.Status == GroupStatus.Archived)
+            {
+                <form method="post" asp-page-handler="Unarchive" asp-route-id="@g.Id"><button class="btn" type="submit">Restore group</button></form>
+            }
+            else
+            {
+                <form method="post" asp-page-handler="Archive" asp-route-id="@g.Id"><button class="btn" type="submit">Archive group</button></form>
+            }
+            <button type="button" class="btn btn-danger" data-open-dialog="dlg-delete">Delete group…</button>
+        </div>
+        <p class="hint" style="margin-top:8px">Archiving closes every personal link but keeps the data. Deleting removes the group, its draw and its reveal history permanently.</p>
+    </section>
+</div>
+
+@if (Model.IsDraft)
+{
+    <dialog id="dlg-draw" aria-labelledby="dlg-draw-h">
+        <form method="post" asp-page-handler="Draw" asp-route-id="@g.Id" data-once>
+            <h2 id="dlg-draw-h">Generate the draw?</h2>
+            <p>This will randomly assign each of the <strong>@total participants</strong> one person to buy a gift for, and make every personal link live.</p>
+            <p class="small muted">Nobody can draw themselves. After this, names can no longer be edited or removed unless you reset the draw.</p>
+            <div class="actions">
+                <button type="button" class="btn" data-close-dialog>Cancel</button>
+                <button type="submit" class="btn btn-primary">Generate draw</button>
+            </div>
+        </form>
+    </dialog>
+}
+@if (Model.HasDraw)
+{
+    <dialog id="dlg-reset" aria-labelledby="dlg-reset-h">
+        <form method="post" asp-page-handler="Reset" asp-route-id="@g.Id" data-once>
+            <h2 id="dlg-reset-h">Reset the draw?</h2>
+            <p>All assignments @(revealedAny ? "and reveal history " : "")will be deleted and the group returns to draft. Links stay the same, but a new draw may give different results.</p>
+            @if (revealedAny)
+            {
+                <p class="flash flash-err"><strong>@Model.RevealedCount participant@(Model.RevealedCount == 1 ? " has" : "s have") already seen their recipient.</strong> Resetting would make those results wrong.</p>
+                <div class="field">
+                    <label for="reset-confirm">Type <code>@g.Slug</code> to confirm</label>
+                    <input class="input" id="reset-confirm" name="confirm" autocomplete="off" spellcheck="false" data-confirm-word="reset-go" data-expect="@g.Slug">
+                </div>
+            }
+            <div class="actions">
+                <button type="button" class="btn" data-close-dialog>Cancel</button>
+                <button type="submit" id="reset-go" class="btn btn-danger">Reset draw</button>
+            </div>
+        </form>
+    </dialog>
+}
+<dialog id="dlg-delete" aria-labelledby="dlg-delete-h">
+    <form method="post" asp-page-handler="Delete" asp-route-id="@g.Id" data-once>
+        <h2 id="dlg-delete-h">Delete this group?</h2>
+        <p>This permanently removes <strong>@g.Title</strong>, its participants, the draw and the reveal history.</p>
+        <div class="field">
+            <label for="delete-confirm">Type <code>@g.Slug</code> to confirm</label>
+            <input class="input" id="delete-confirm" name="confirm" autocomplete="off" spellcheck="false" data-confirm-word="delete-go" data-expect="@g.Slug">
+        </div>
+        <div class="actions">
+            <button type="button" class="btn" data-close-dialog>Cancel</button>
+            <button type="submit" id="delete-go" class="btn btn-danger">Delete group</button>
+        </div>
+    </form>
+</dialog>

@@ -1,0 +1,8 @@
+@page "/admin/themes/{key}/preview"
+@model Admin.Themes.PreviewModel
+@{
+    Layout = "_ThemeLayout";
+    ViewData["Theme"] = Model.Theme;
+    ViewData["Title"] = Model.Theme.Info.DisplayName + " (preview)";
+}
+<partial name="@Model.Theme.Info.PartialView" model="Model.Theme" />

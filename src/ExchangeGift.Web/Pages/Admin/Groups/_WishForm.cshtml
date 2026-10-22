@@ -1,0 +1,13 @@
+@model PersonRow
+@{
+    var count = string.IsNullOrWhiteSpace(Model.Wishes) ? 0 : Model.Wishes.Split('\n', StringSplitOptions.RemoveEmptyEntries).Length;
+}
+<details class="wishes">
+    <summary>Wish list@(count > 0 ? $" ({count})" : "")</summary>
+    <form method="post" asp-page-handler="Wishes" asp-route-id="@ViewData["GroupId"]">
+        <input type="hidden" name="participantId" value="@Model.Id">
+        <label class="visually-hidden" for="w-@Model.Id">Wishes for @Model.Name</label>
+        <textarea class="textarea" id="w-@Model.Id" name="wishes" rows="3" maxlength="400" placeholder="One wish per line (up to 3)">@Model.Wishes</textarea>
+        <button class="btn btn-sm btn-dark" type="submit" style="margin-top:8px">Save wish list</button>
+    </form>
+</details>

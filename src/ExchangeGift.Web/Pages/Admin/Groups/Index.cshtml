@@ -1,0 +1,11 @@
+@page "/admin/groups"
+@model Admin.Groups.IndexModel
+@{
+    ViewData["Title"] = "Groups";
+    ViewData["Nav"] = "groups";
+}
+<div class="page-head">
+    <h1>Exchange-gift groups</h1>
+    <a class="btn btn-primary" href="/admin/groups/create">Create exchange gift group</a>
+</div>
+<partial name="_GroupList" model="Model.Rows" />
