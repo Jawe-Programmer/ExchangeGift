@@ -1,0 +1,41 @@
+# Build output
+bin/
+obj/
+publish/
+TestResults/
+*.user
+.vs/
+.idea/
+
+# Local database, data-protection keys and backups (never commit or serve these)
+**/App_Data/
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+backups/
+
+# Secrets and local configuration
+secrets.json
+appsettings.Local.json
+appsettings.*.local.json
+.env
+.env.*
+*.pfx
+*.pem
+*.key
+*.p12
+
+# Tooling and scratch files
+node_modules/
+*.log
+.claude/
+
+# Visual Studio publish profiles hold hosting user names/passwords - never commit them
+*.pubxml
+*.pubxml.user
+*.csproj.user
+**/Properties/PublishProfiles/
+.vs/
+/.github/workflows/azure-webapp.yml
