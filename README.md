@@ -1,13 +1,29 @@
 # 🎁 Exchange Gift
 
-A private, self-hosted **secret gift exchange** website (Secret Santa, Kris Kringle, Monito Monita…). The organiser creates
-a group, adds the participants and generates a secure random draw. Every participant gets **one personal link** and
-discovers who they are buying for through an animated, mobile-friendly Christmas reveal.
+A private, self-hosted **secret gift exchange** website (Secret Santa, Kris Kringle, Monito Monita…). The organiser creates a group, adds the participants and generates a secure random draw. Every participant gets **one personal link** and discovers who they are buying for through an animated, mobile-friendly Christmas reveal.
 
-* ASP.NET Core Razor Pages on **.NET 10**, Entity Framework Core + **SQLite** (a single local file, no database server)
-* Administrator login with ASP.NET Core Identity
-* Two ready-made Christmas themes, chosen per group
-* Works on phones, tablets and desktops
+- ASP.NET Core Razor Pages on **.NET 10**, Entity Framework Core + **SQLite** (a single local file, no database server)
+- Administrator login with ASP.NET Core Identity
+- Two ready-made Christmas themes, chosen per group
+- Works on phones, tablets and desktops
+
+## 🎄 Theme Previews
+
+Choose between two festive, interactive reveal experiences for your gift exchange groups.
+
+### ❄️ Default Secret Santa Reveal
+
+![Default Secret Santa Reveal theme preview](src/ExchangeGift.Web/wwwroot/img/theme-default-secret-santa-reveal.jpg)
+
+A snowy Christmas night. Tap the envelope buried in the snow, then brush the snow off the card to uncover the recipient's name. Includes an optional Christmas music track.
+
+### 🎆 Dubai Family Christmas 2026
+
+![Dubai Family Christmas 2026 theme preview](src/ExchangeGift.Web/wwwroot/img/theme-dubai-family-christmas-2026.jpg)
+
+A spectacular Dubai skyline at night. Press and hold the gold button to light up the Burj Khalifa as fireworks reveal the recipient's name. Sound is synthesised in the browser.
+
+> Changing a group's theme only changes its appearance. It never changes the gift draw.
 
 ## Features
 
@@ -21,14 +37,12 @@ discovers who they are buying for through an animated, mobile-friendly Christmas
 | See who has revealed (and when); recipients hidden behind an eye button | Music and sound are optional and never required |
 | Reset, archive, expire or delete a group | |
 
-### Themes
+### Available Themes
 
 | Key | Name | Experience |
 | --- | --- | --- |
-| `default-secret-santa-reveal` | **Default Secret Santa Reveal** | Snowy night. Tap the envelope buried in the snow, then brush the snow off the card to uncover the name. Includes a Christmas music track. |
-| `dubai-family-christmas-2026` | **Dubai Family Christmas 2026** | Dubai skyline at night. Press and hold the gold button to light up the Burj Khalifa; fireworks spell out the name. Sound is synthesised in the browser. |
-
-Changing a group's theme only changes how it looks. It never touches the draw.
+| `default-secret-santa-reveal` | **Default Secret Santa Reveal** | Snowy night, interactive envelope, snow-brushing reveal and optional Christmas music. |
+| `dubai-family-christmas-2026` | **Dubai Family Christmas 2026** | Dubai skyline, illuminated Burj Khalifa, fireworks and browser-generated sound. |
 
 ## Quick start (run it on your own computer)
 
@@ -45,13 +59,11 @@ dotnet user-secrets set "Admin:Password" "YourStr0ngPassword" --project src/Exch
 dotnet run --project src/ExchangeGift.Web
 ```
 
-Open the address printed in the console (for example `http://localhost:5000`) and go to **`/admin`**.
-The sign-in page is **`/admin/login`** (going to `/admin` sends you there automatically when you are signed out).
-If you ever land on an error or a blank page, go back to `/admin` (add it to the end of your site address, e.g. `https://your-site/admin`).
+Open the address printed in the console (for example `http://localhost:5000`) and go to **`/admin`**. The sign-in page is **`/admin/login`** (going to `/admin` sends you there automatically when you are signed out). If you ever land on an error or a blank page, go back to `/admin` (add it to the end of your site address, e.g. `https://your-site/admin`).
+
 Password rules: at least 8 characters with an uppercase letter, a lowercase letter and a number.
 
-> Type the password **without** `<` `>` brackets. After the first start the password is stored (hashed) in the database,
-> so changing the setting later does nothing. To reset it see [docs/USAGE.md](docs/USAGE.md#forgot-the-admin-password).
+> Type the password **without** `<` `>` brackets. After the first start the password is stored (hashed) in the database, so changing the setting later does nothing. To reset it see [docs/USAGE.md](docs/USAGE.md#forgot-the-admin-password).
 
 ## Documentation
 
@@ -62,15 +74,15 @@ Password rules: at least 8 characters with an uppercase letter, a lowercase lett
 
 ## Security in short
 
-* Admin area needs a login **and** an antiforgery token on every change; five wrong passwords lock the account for ten minutes.
-* Participant codes are random (cryptographic generator), six characters, unique per group, and validated together with the group name. Wrong links all show the same generic message. Requests are rate limited.
-* The draw is stored only on the server. A participant's page never contains anyone's result until they start the reveal, and the answer is not cached.
-* The database file lives in `App_Data` (outside `wwwroot`) and is never served.
-* Strict response headers and Content-Security-Policy (no inline scripts).
+- Admin area needs a login **and** an antiforgery token on every change; five wrong passwords lock the account for ten minutes.
+- Participant codes are random (cryptographic generator), six characters, unique per group, and validated together with the group name. Wrong links all show the same generic message. Requests are rate limited.
+- The draw is stored only on the server. A participant's page never contains anyone's result until they start the reveal, and the answer is not cached.
+- The database file lives in `App_Data/` (outside `wwwroot`) and is never served.
+- Strict response headers and Content-Security-Policy (no inline scripts).
 
 ## Project layout
 
-```
+```text
 src/ExchangeGift.Web
   Program.cs                      startup, authentication, rate limiting, headers
   Data/                           entities, DbContext, EF Core migrations
@@ -90,9 +102,10 @@ Run the tests with `dotnet test`.
 
 ## Credits
 
-Created by **John Wayne H. Rebustes**
-· [johnwayne.rebustes@gmail.com](mailto:johnwayne.rebustes@gmail.com)
+Created by **John Wayne H. Rebustes**  
+· [johnwayne.rebustes@gmail.com](mailto:johnwayne.rebustes@gmail.com)  
 · [johnwayne.is-a.dev](https://johnwayne.is-a.dev)
 
 The same credit is shown in the admin area under **Credits**. Please keep it when you reuse or modify the project.
+
 Add a `LICENSE` file of your choice to the repository before publishing it.
